@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Autoloader class (https://www.php-fig.org/psr/psr-4/).
  *
@@ -12,7 +13,7 @@ final class PSR4Autoloader
 {
     public function __construct(array $conf, bool $use_map = true, string $base_dir = null)
     {
-        $this->base_dir = $base_dir ?: __DIR__.DIRECTORY_SEPARATOR;
+        $this->base_dir = $base_dir ?: __DIR__ . DIRECTORY_SEPARATOR;
         foreach ($conf as $prefix => $c) {
             $this->addNamespace($prefix, $c);
         }
@@ -29,9 +30,9 @@ final class PSR4Autoloader
         }
         foreach ($this->conf as $prefix => $conf) {
             if (strncmp($prefix, $class_name, $conf['len']) === 0) {
-                $f = str_replace('\\', DIRECTORY_SEPARATOR, substr($class_name, $conf['len'])).'.php';
+                $f = str_replace('\\', DIRECTORY_SEPARATOR, substr($class_name, $conf['len'])) . '.php';
                 foreach ($conf['dirs'] as $dir) {
-                    $file = $dir.$f;
+                    $file = $dir . $f;
                     if (file_exists($file)) {
                         require $file;
                         return;
@@ -49,13 +50,13 @@ final class PSR4Autoloader
         }
         $k = 'base_dir';
         if (isset($conf[$k])) {
-            $base_dir = $conf[$k].DIRECTORY_SEPARATOR;
+            $base_dir = $conf[$k] . DIRECTORY_SEPARATOR;
             unset($conf[$k]);
         } else {
             $base_dir = $this->base_dir;
         }
         foreach ($conf as $v) {
-            $this->conf[$prefix]['dirs'][] = $base_dir.('' === $v ? '' : $v.DIRECTORY_SEPARATOR);
+            $this->conf[$prefix]['dirs'][] = $base_dir . ('' === $v ? '' : $v . DIRECTORY_SEPARATOR);
         }
         return $this;
     }
@@ -81,7 +82,11 @@ final class PSR4Autoloader
             $rc = new \ReflectionClass($class_name);
             $fname = $rc->getFileName();
             foreach ($this->conf as $prefix => $conf) {
-                if (strncmp($prefix, $class_name, $conf['len']) === 0 && isset($files[$fname]) && substr($class_name, $conf['len']) === $files[$fname]) {
+                if (
+                    strncmp($prefix, $class_name, $conf['len']) === 0
+                    && isset($files[$fname])
+                    && substr($class_name, $conf['len']) === $files[$fname]
+                ) {
                     $map[$class_name] = $fname;
                 }
             }
@@ -102,12 +107,12 @@ final class PSR4Autoloader
                 }
             }
         }
-        file_put_contents(self::getClassMapFileName(), '<?php return '.var_export($map, true).';');
+        file_put_contents(self::getClassMapFileName(), '<?php return ' . var_export($map, true) . ';');
     }
 
     public static function getClassMapFileName(): string
     {
-        return __DIR__.DIRECTORY_SEPARATOR.'psr4classmap.php';
+        return __DIR__ . DIRECTORY_SEPARATOR . 'psr4classmap.php';
     }
 
     public function __debugInfo()
