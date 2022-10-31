@@ -13,7 +13,7 @@ final class PSR4Autoloader
 {
     public function __construct(array $conf, bool $use_map, string $base_dir = null)
     {
-        $this->base_dir = $base_dir ?: __DIR__ . DIRECTORY_SEPARATOR;
+        $this->base_dir = ($base_dir ?: __DIR__) . DIRECTORY_SEPARATOR;
         foreach ($conf as $prefix => $c) {
             $this->addNamespace($prefix, $c);
         }
