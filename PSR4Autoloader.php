@@ -24,21 +24,22 @@ final class PSR4Autoloader
 
     public function __invoke(string $class_name): void
     {
-        if (null !== $this->map && isset($this->map[$class_name])) {
-            require $this->map[$class_name];
-            return;
-        }
-        foreach ($this->conf as $prefix => $conf) {
-            if (strncmp($prefix, $class_name, $conf['len']) === 0) {
-                $f = str_replace('\\', DIRECTORY_SEPARATOR, substr($class_name, $conf['len'])) . '.php';
-                foreach ($conf['dirs'] as $dir) {
-                    $file = $dir . $f;
-                    if (file_exists($file)) {
-                        require $file;
-                        return;
+        if (null === $this->map) {
+            foreach ($this->conf as $prefix => $conf) {
+                if (strncmp($prefix, $class_name, $conf['len']) === 0) {
+                    $f = str_replace('\\', DIRECTORY_SEPARATOR, substr($class_name, $conf['len'])) . '.php';
+                    foreach ($conf['dirs'] as $dir) {
+                        $file = $dir . $f;
+                        if (file_exists($file)) {
+                            require $file;
+                            return;
+                        }
                     }
                 }
             }
+        } elseif (isset($this->map[$class_name])) {
+            require $this->map[$class_name];
+            return;
         }
     }
 
@@ -71,8 +72,12 @@ final class PSR4Autoloader
                 foreach ($iterator as $info) {
                     $p = $info->getRealPath();
                     if ('.php' === substr($p, -4)) {
-                        require_once($p);
-                        $files[$p] = str_replace('/', '\\', substr($iterator->getSubPathname(), 0, -4));
+                        try {
+                            require_once($p);
+                            $files[$p] = str_replace('/', '\\', substr($iterator->getSubPathname(), 0, -4));
+                        } catch (\Error $e) {
+                            print($e->getMessage());
+                        }
                     }
                 }
             }
@@ -99,6 +104,8 @@ final class PSR4Autoloader
         $map = [];
         foreach (spl_autoload_functions() as $f) {
             if ($f instanceof self) {
+                # We must unload map as we renew it.
+                $f->map = null;
                 foreach ($f->createClassMap() as $k => $v) {
                     if (isset($map[$k])) {
                         throw new \Exception("Class $k already mapped");
@@ -107,7 +114,8 @@ final class PSR4Autoloader
                 }
             }
         }
-        file_put_contents(self::getClassMapFileName(), '<?php return ' . var_export($map, true) . ';');
+        // file_put_contents(self::getClassMapFileName(), '<?php return ' . var_export($map, true) . ';');
+        var_dump($map);
     }
 
     public static function getClassMapFileName(): string
