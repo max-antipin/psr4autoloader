@@ -9,10 +9,10 @@ Basic Usage
 ~~~php
 <?php
 require 'path-to-includes/PSR4Autoloader.php';
-spl_autoload_register(new \MaxieSystems\PSR4Autoloader([
-    'VendorNamespace' => ['directory'],
-    'AnotherVendor\\SubNamespace' => ['another/dir'],
-], false));
+new \MaxieSystems\PSR4Autoloader([
+    'VendorNamespace' => 'directory',
+    'AnotherVendor\\SubNamespace' => ['another/dir', 'one-more-dir'],
+]);
 ~~~
 
 First argument defines a mapping from namespaces to paths, relative to the autoloader directory.
